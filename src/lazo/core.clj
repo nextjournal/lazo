@@ -1,4 +1,5 @@
 (ns lazo.core
+  (:gen-class)
   (:require [clojure.core.async :as async]
             [clojure.tools.logging :as log]
             [lazo.events :as events]
@@ -70,6 +71,9 @@
 
 
 (defn go []
+  (mount/start))
+
+(defn -main [& _args]
   (mount/start))
 
 ;; Take the commit messages from ALL the commits in the PUSH event

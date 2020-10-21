@@ -1,4 +1,4 @@
-{:paths ["src" "resources"]
+{:paths ["src" "resources" "classes"]
  :deps  {integrant/integrant            {:mvn/version "0.8.0"}
          cheshire/cheshire              {:mvn/version "5.8.1"}
          ch.qos.logback/logback-classic {:mvn/version "1.2.3"}
