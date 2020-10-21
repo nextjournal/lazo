@@ -26,7 +26,7 @@
     (when-let [repo-configs (->> (:repos config)
                                  (filter (fn [r] (and (= (:main-repo r) repo)
                                                       (= (:main-branch r) (extract-branch git-ref))))))]
-      (doseq [repo-config (drop 1 repo-configs)]
+      (doseq [repo-config repo-configs]
         (log/info (format "Detected push at '%s'. Syncing '%s'." (:main-repo repo-config) (:module-repo repo-config)))
         (let [commits (->> (:commits event)
                            (filter (partial commit-with-module? repo-config))
