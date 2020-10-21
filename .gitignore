@@ -16,3 +16,4 @@ pom.xml.asc
 .idea
 *~
 *.iml
+resources/config.edn

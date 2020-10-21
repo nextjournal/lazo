@@ -1,0 +1,10 @@
+{:user      ""
+ :token     ""
+ :local-dir ".lazo-repos"
+ :repos     [{:organization       "test-org-integration"
+              :main-repo          "main-repo"
+              :main-branch        "master"
+              :main-module-folder "my-module"
+              :module-repo        "module-repo"
+              :module-branch      "master"}
+            ]}

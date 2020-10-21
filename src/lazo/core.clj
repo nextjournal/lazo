@@ -1,6 +1,7 @@
 (ns lazo.core
   (:gen-class)
-  (:require [clojure.core.async :as async]
+  (:require [aero.core :as aero]
+            [clojure.core.async :as async]
             [clojure.tools.logging :as log]
             [lazo.events :as events]
             [mount.core :as mount]
@@ -13,25 +14,8 @@
 
 (def event-queue (async/chan 10))
 
-
 (def config
-  {:user      "Heliosmaster"
-   :token     "TOKEN"
-   :local-dir ".lazo-repos"
-   :email     "foo@example.com"
-   :repos     [{:organization       "test-org-integration"
-                :main-repo          "main-repo"
-                :main-branch        "master"
-                :main-module-folder "my-module"
-                :module-repo        "module-repo"
-                :module-branch      "master"}
-               #_{:organization       "test-org-integration"
-                :main-repo          "main-repo"
-                :main-branch        "master"
-                :main-module-folder "my-module2"
-                :module-repo        "module2-repo"
-                :module-branch      "master"}]})
-
+  (aero/read-config (clojure.java.io/resource "config.edn")))
 
 (mount/defstate repos
   :start (git/initialize-repos! config))
