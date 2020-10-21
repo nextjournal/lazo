@@ -1,12 +1,17 @@
 (ns lazo.core
-  (:require [ring.adapter.jetty :as jetty]
+  (:require [clojure.core.async :as async]
             [clojure.tools.logging :as log]
+            [lazo.events :as events]
+            [mount.core :as mount]
+            [muuntaja.core :as m]
             [reitit.ring :as ring]
             [reitit.ring.middleware.muuntaja :as muuntaja]
-            [muuntaja.core :as m]
-            [mount.core :as mount]
-            [lazo.events :as events]
-            [ring.middleware.params :as params]))
+            [ring.adapter.jetty :as jetty]
+            [ring.middleware.params :as params]
+            [lazo.git :as git]))
+
+(def event-queue (async/chan 10))
+
 
 (def config
   {:user      "Heliosmaster"
@@ -19,7 +24,7 @@
                 :main-module-folder "my-module"
                 :module-repo        "module-repo"
                 :module-branch      "master"}
-               {:organization       "test-org-integration"
+               #_{:organization       "test-org-integration"
                 :main-repo          "main-repo"
                 :main-branch        "master"
                 :main-module-folder "my-module2"
@@ -27,20 +32,32 @@
                 :module-branch      "master"}]})
 
 
+(mount/defstate repos
+  :start (git/initialize-repos! config))
+
+
+(mount/defstate event-processor
+  :start (async/go-loop []
+           (let [event (async/<! event-queue)]
+             (try
+               (log/info :event (:event/type event))
+               (events/handle-event! {:config config
+                                      :event  event})
+               (catch Exception _e))
+             (recur))))
+
+
 (defn handle-post [req]
   (let [event (assoc (:body-params req)
                 :event/type (keyword (get-in req [:headers "x-github-event"])))]
-    (events/handle-event! {:config config
-                           :event  event}))
+    (async/>!! event-queue event))
   {:status 200 :body "OK"})
 
 (def app
   (ring/ring-handler
     (ring/router
       ["/" {:post {:handler handle-post}
-            :get  {:handler
-                   (fn [_] (log/info :foo "bar")
-                     {:status 200 :body "This service is API only"})}}]
+            :get  {:handler (fn [_] {:status 200 :body "This service is API only"})}}]
       {:data {:muuntaja   m/instance
               :middleware [params/wrap-params
                            muuntaja/format-middleware]}})
@@ -50,3 +67,9 @@
 (mount/defstate server
   :start (jetty/run-jetty #'app {:port 8890, :join? false})
   :stop (.stop server))
+
+
+(defn go []
+  (mount/start))
+
+;; Take the commit messages from ALL the commits in the PUSH event
