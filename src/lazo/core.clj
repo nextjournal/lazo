@@ -20,7 +20,6 @@
 (mount/defstate repos
   :start (git/initialize-repos! config))
 
-
 (mount/defstate event-processor
   :start (async/go-loop []
            (let [event (async/<! event-queue)]
@@ -60,6 +59,4 @@
   (mount/start))
 
 (defn -main [& _args]
-  (mount/start))
-
-;; Take the commit messages from ALL the commits in the PUSH event
+  (go))

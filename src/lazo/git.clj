@@ -4,18 +4,23 @@
             [clojure.tools.logging :as log]
             [clojure.string :as str]))
 
+(defn initialize-repo! [organization repo config]
+  (let [dir (str (:local-dir config) "/" repo)]
+    (when-not (fs/exists? dir)
+      (log/info (format "Repo not found, initializing '%s'" repo))
+      (jgit/git-clone (format "https://github.com/%s/%s.git" organization repo) :dir dir))
+    (-> (jgit/load-repo dir)
+        (jgit/git-config-load)
+        (jgit/git-config-set "user.name" (:user config))
+        (jgit/git-config-set "user.email" (:email config))
+        (jgit/git-config-save))))
+
 (defn initialize-repos! [config]
   (log/info "Initializing repos")
   (doseq [{:keys [main-repo organization module-repo]} (:repos config)]
     (jgit/with-credentials {:login (:user config) :pw (:token config)}
-      (let [module-dir (str (:local-dir config) "/" module-repo)
-            main-dir (str (:local-dir config) "/" main-repo)]
-        (when-not (fs/exists? module-dir)
-          (log/info (format "Repo not found, initializing '%s'" module-repo))
-          (jgit/git-clone (format "https://github.com/%s/%s.git" organization module-repo) :dir module-dir))
-        (when-not (fs/exists? main-dir)
-          (log/info (format "Repo not found, initializing '%s'" main-repo))
-          (jgit/git-clone (format "https://github.com/%s/%s.git" organization main-repo) :dir main-dir))))))
+      (initialize-repo! organization module-repo config)
+      (initialize-repo! organization main-repo config))))
 
 
 (defn generate-final-commit-message [commits co-authors]
