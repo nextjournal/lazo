@@ -25,7 +25,7 @@ You can run Lazo either as an uberjar, or with the [official docker image](https
 
 In order for Lazo to know about your repositories and modules, you need to provide a EDN configuration file:
 
-- Either you supply a `LAZO_CONFIG_FILE` environment variable with the path of the cofig file
+- Either you supply a `LAZO_CONFIG_FILE` environment variable with the path of the config file
 - Otherwise it will assume that it's a `config.edn` at the same location of where you're running the jar, or in the root folder of the docker image.
 
 ### Example config
