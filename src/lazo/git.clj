@@ -4,11 +4,11 @@
             [clojure.tools.logging :as log]
             [clojure.string :as str]))
 
-(defn initialize-repo! [organization repo config]
+(defn initialize-repo! [organization repo branch config]
   (let [dir (str (:local-dir config) "/" repo)]
     (when-not (fs/exists? dir)
       (log/info (format "Repo not found, initializing '%s'" repo))
-      (jgit/git-clone (format "https://github.com/%s/%s.git" organization repo) :dir dir))
+      (jgit/git-clone (format "https://github.com/%s/%s.git" organization repo) :branch branch :dir dir))
     (-> (jgit/load-repo dir)
         (jgit/git-config-load)
         (jgit/git-config-set "user.name" (:user config))
@@ -17,10 +17,10 @@
 
 (defn initialize-repos! [config]
   (log/info "Initializing repos")
-  (doseq [{:keys [main-repo organization module-repo]} (:repos config)]
+  (doseq [{:keys [main-repo organization main-branch module-branch module-repo]} (:repos config)]
     (jgit/with-credentials {:login (:user config) :pw (:token config)}
-      (initialize-repo! organization module-repo config)
-      (initialize-repo! organization main-repo config))))
+      (initialize-repo! organization module-repo module-branch config)
+      (initialize-repo! organization main-repo main-branch config))))
 
 
 (defn generate-final-commit-message [commits co-authors]
