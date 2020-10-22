@@ -37,7 +37,7 @@
                                     (format "Co-authored-by: %s <%s>" (:name co-author) (:email co-author))))
                              (str/join "\n"))]
     (cond-> (str title "\n\n")
-            (>= (count commits) 1) (str description)
+            (> (count commits) 1) (str description)
             (seq co-authors) (str "\n\n" co-authors-text))))
 
 
