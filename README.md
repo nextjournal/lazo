@@ -1,4 +1,5 @@
 # Lazo
+<img src="lasso.svg" alt="Catch them changes!" width="200px" align="right">
 
 A clojure program to catch changes in a repository 
 
@@ -69,5 +70,5 @@ EPL 2.0, see [LICENSE](LICENSE.md)
 
 ## Acknowledgement
 
-This code is a reintepretation of my previous work, [flow-bot](https://github.com/WorksHub/flow-bot) which served a similar (but not the same) purpose.
-
+- This code is a reintepretation of my previous work, [flow-bot](https://github.com/WorksHub/flow-bot) which served a similar (but not the same) purpose.
+- Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [Flaticon](https://www.flaticon.com/)
