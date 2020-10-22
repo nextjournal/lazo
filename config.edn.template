@@ -1,5 +1,6 @@
-{:user      ""
- :token     ""
+{:user      "Foo"
+ :email     "foo@example.com"
+ :token     "TOKEN"
  :local-dir ".lazo-repos"
  :repos     [{:organization       "test-org-integration"
               :main-repo          "main-repo"
@@ -7,4 +8,9 @@
               :main-module-folder "my-module"
               :module-repo        "module-repo"
               :module-branch      "master"}
-            ]}
+              {:organization       "test-org-integration"
+               :main-repo          "main-repo"
+               :main-branch        "master"
+               :main-module-folder "my-module2"
+               :module-repo        "module2"
+               :module-branch      "main"}]}
