@@ -1,0 +1,28 @@
+name: Continuous Delivery
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11.0.7'
+
+      - name: Install clojure
+        uses: DeLaGuardo/setup-clojure@master
+        with:
+          cli: '1.10.1.708'
+
+      - name: Create Uberjar
+        run: ./ops/create-uberjar.sh
+
+      - name: Push docker image
+        run: |
+          docker login -u nextjournaldeploy -p ${{ secrets.DOCKERHUB_PW }}
+          docker build -t nextjournal/lazo .
+          docker push nextjournal/lazo
