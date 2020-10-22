@@ -15,7 +15,7 @@
 (def event-queue (async/chan 10))
 
 (def config
-  (aero/read-config (clojure.java.io/resource "config.edn")))
+  (aero/read-config "config.edn"))
 
 (mount/defstate repos
   :start (git/initialize-repos! config))
