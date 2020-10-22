@@ -15,8 +15,12 @@
 
 (def event-queue (async/chan 10))
 
+(defn config-file []
+  (or (System/getenv "LAZO_CONFIG_FILE")
+      "config.edn"))
+
 (mount/defstate config
-  :start (aero/read-config "config.edn"))
+  :start (aero/read-config (config-file)))
 
 (mount/defstate repos
   :start (git/initialize-repos! config))
@@ -57,7 +61,7 @@
 
 
 (defn go []
-  (if (fs/exists? "config.edn")
+  (if (fs/exists? (config-file))
      (mount/start)
      (do (log/error "config.edn not found.")
          (System/exit 1))))
