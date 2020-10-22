@@ -10,12 +10,13 @@
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.params :as params]
-            [lazo.git :as git]))
+            [lazo.git :as git]
+            [me.raynes.fs :as fs]))
 
 (def event-queue (async/chan 10))
 
-(def config
-  (aero/read-config "config.edn"))
+(mount/defstate config
+  :start (aero/read-config "config.edn"))
 
 (mount/defstate repos
   :start (git/initialize-repos! config))
@@ -56,7 +57,10 @@
 
 
 (defn go []
-  (mount/start))
+  (if (fs/exists? "config.edn")
+     (mount/start)
+     (do (log/error "config.edn not found.")
+         (System/exit 1))))
 
 (defn -main [& _args]
   (go))
