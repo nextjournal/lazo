@@ -33,10 +33,12 @@
 
 
 (defn handle-post [req]
-  (let [event (assoc (:body-params req)
-                :event/type (keyword (get-in req [:headers "x-github-event"])))]
-    (async/>!! event-queue event))
-  {:status 200 :body "OK"})
+  (if-let [type (get-in req [:headers "x-github-event"])]
+    (let [event (assoc (:body-params req)
+                  :event/type (keyword type))]
+      (async/>!! event-queue event)
+      {:status 200 :body "OK"})
+    {:status 400 :body "Not a valid request"}))
 
 (def app
   (ring/ring-handler
