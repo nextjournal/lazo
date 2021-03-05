@@ -42,19 +42,20 @@
 
 
 (defn compute-authors [commits]
-  (let [main-author {:name (:author (last commits))
+  (let [main-author {:name  (:author (last commits))
                      :email (:email (last commits))}
         co-authors (->> commits
-                     (map (fn [c] {:name  (:author c)
-                                   :email (:email c)}))
-                     (filter (fn [{:keys [email]}]
-                               (not= email (:email main-author)))))]
+                        (map (fn [c] {:name  (:author c)
+                                      :email (:email c)}))
+                        (filter (fn [{:keys [email]}]
+                                  (not= email (:email main-author))))
+                        (distinct))]
     {:main-author main-author
-     :co-authors co-authors}))
+     :co-authors  co-authors}))
 
 (defn sync-module! [commits
-                   {:keys [main-repo main-branch main-module-folder module-repo module-branch] :as _repo-config}
-                   {:keys [user token local-dir] :as _config}]
+                    {:keys [main-repo main-branch main-module-folder module-repo module-branch] :as _repo-config}
+                    {:keys [user token local-dir] :as _config}]
   (let [main-folder (str local-dir "/" main-repo)
         module-folder (str local-dir "/" module-repo)
         main (jgit/load-repo main-folder)
@@ -92,7 +93,7 @@
         (jgit/git-commit module
                          final-commit-message
                          :all? true
-                         :author {:name (get-in authors [:main-author :name])
+                         :author {:name  (get-in authors [:main-author :name])
                                   :email (get-in authors [:main-author :email])}))
       (log/info :pushing-changes)
       (jgit/git-push module)))
@@ -103,11 +104,11 @@
     (initialize-repos! lazo.core/config)
     (sync-module! [{:message asdfasdf, :author "Holger Amann", :email "holger@nextjournal.com", :sha "97cbd7955c414f96cbb398ca6259248153dd4d90"}]
                   {:organization       "test-org-integration"
-                  :main-repo          "main-repo"
-                  :main-branch        "master"
-                  :main-module-folder "my-module"
-                  :module-repo        "module-repo"
-                  :module-branch      "master"}
+                   :main-repo          "main-repo"
+                   :main-branch        "master"
+                   :main-module-folder "my-module"
+                   :module-repo        "module-repo"
+                   :module-branch      "master"}
                   lazo.core/config))
 
   (generate-final-commit-message [{:message "Foo"}
