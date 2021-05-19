@@ -18,9 +18,10 @@
 (defn config-file []
   (if-let [config-from-env (System/getenv "LAZO_CONFIG_FILE")]
     (do
-      (log/info (str "Found custom config file at " config-from-env)))
+      (log/info (str "Using custom config file at " config-from-env))
+      config-from-env)
     (do
-      (log/info (str "No custom config file found, using config.edn"))
+      (log/info (str "No custom config file specified, using ./config.edn"))
       "config.edn")))
 
 (mount/defstate config

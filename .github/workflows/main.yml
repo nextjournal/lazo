@@ -24,5 +24,5 @@ jobs:
       - name: Push docker image
         run: |
           docker login -u nextjournaldeploy -p ${{ secrets.DOCKERHUB_PW }}
-          docker build -t nextjournal/lazo .
-          docker push nextjournal/lazo
+          docker build -t nextjournal/lazo:${GITHUB_SHA::8} .
+          docker push nextjournal/lazo:${GITHUB_SHA::8}
