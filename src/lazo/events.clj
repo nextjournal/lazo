@@ -3,7 +3,6 @@
             [clojure.string :as str]
             [lazo.git :as git]))
 
-
 (defn extract-branch [git-ref]
   (str/replace git-ref #"refs/heads/" ""))
 
@@ -14,7 +13,7 @@
 (defmethod handle-event! :default [{:keys [event]}]
   (log/info :unknown-event (:event/type event)))
 
-(defn commit-with-module? [repo-config {:keys [added removed modified] :as commit}]
+(defn commit-with-module? [repo-config {:keys [added removed modified] :as _commit}]
   (some (fn [path]
           (str/starts-with? path (:main-module-folder repo-config)))
         (concat added removed modified)))
@@ -27,7 +26,10 @@
                                  (filter (fn [r] (and (= (:main-repo r) repo)
                                                       (= (:main-branch r) (extract-branch git-ref))))))]
       (doseq [repo-config repo-configs]
-        (log/info (format "Detected push at '%s'. Syncing '%s'." (:main-repo repo-config) (:module-repo repo-config)))
+        (log/info (format "Detected push (%s) at '%s'. Syncing '%s'."
+                          git-ref
+                          (:main-repo repo-config)
+                          (:module-repo repo-config)))
         (let [commits (->> (:commits event)
                            (filter (partial commit-with-module? repo-config))
                            (map (fn [c] {:message (:message c)

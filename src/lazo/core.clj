@@ -4,23 +4,29 @@
             [clojure.core.async :as async]
             [clojure.tools.logging :as log]
             [lazo.events :as events]
+            [lazo.git :as git]
+            [me.raynes.fs :as fs]
             [mount.core :as mount]
             [muuntaja.core :as m]
             [reitit.ring :as ring]
             [reitit.ring.middleware.muuntaja :as muuntaja]
             [ring.adapter.jetty :as jetty]
-            [ring.middleware.params :as params]
-            [lazo.git :as git]
-            [me.raynes.fs :as fs]))
+            [ring.middleware.params :as params]))
 
 (def event-queue (async/chan 10))
 
 (defn config-file []
-  (or (System/getenv "LAZO_CONFIG_FILE")
-      "config.edn"))
+  (if-let [config-from-env (System/getenv "LAZO_CONFIG_FILE")]
+    (do
+      (log/info (str "Found custom config file at " config-from-env)))
+    (do
+      (log/info (str "No custom config file found, using config.edn"))
+      "config.edn")))
 
 (mount/defstate config
-  :start (aero/read-config (config-file)))
+  :start (let [c (aero/read-config (config-file))]
+           (log/info (str "Using config: " (dissoc c :token)))
+           c))
 
 (mount/defstate repos
   :start (git/initialize-repos! config))
@@ -62,9 +68,9 @@
 
 (defn go []
   (if (fs/exists? (config-file))
-     (mount/start)
-     (do (log/error "config.edn not found.")
-         (System/exit 1))))
+    (mount/start)
+    (do (log/error "Configuration file not found.")
+        (System/exit 1))))
 
 (defn -main [& _args]
   (go))
